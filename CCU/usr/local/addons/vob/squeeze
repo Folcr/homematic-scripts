@@ -1,0 +1,59 @@
+#!/bin/sh
+# $Id$
+#
+# echo "18:4d:1e:71:f7:84 power ?" | socat -T1 -,ignoreeof   TCP4:automatix:9090 | cut -d " " -f3 
+#
+#set -x
+#
+#Parameter:
+#PLAYER_ID="18:4d:1e:71:f7:84"  # Softsqueeze
+PLAYER_ID="00:04:20:06:78:ef"  # Squeezebox3
+SQUEEZECENTER="192.168.178.10"
+DURATION="100"
+SAMPLE="show line1:Hello%20World line2:Second%20line duration:3 centered:1" 
+#
+SOCAT="/usr/local/addons/socat/socat"
+#-------------------------------
+SCRIPT=`basename $0`
+#
+info()
+{
+   logger -t "${SCRIPT}[$$]" $*
+}
+error()
+{
+   logger -p user.err -t "${SCRIPT}[$$]" "ERROR: $*"
+}
+debug()
+{
+   logger -p user.debug -t "${SCRIPT}[$$]" $*
+}
+#--------------------------------------------
+
+#
+check_online()
+{
+  return=`echo "${PLAYER_ID} power ?" | $SOCAT -T1 -,ignoreeof  TCP4:${SQUEEZECENTER}:9090 | cut -d " " -f3`  
+  if [ $return = 0 ] 
+    then
+	debug "offline"
+        return 0
+    else
+	debug "online"
+        return 1
+    fi   
+}
+#debug "called with $1 and $2."
+TEMP=$1
+HYDR=$2
+WEATHER="show line2:${TEMP}%B0%20${HYDR}%25 duration:${DURATION} font:huge centered:1\nquit"
+#check_online
+#if [ "$?" -eq "0" ]
+#then
+	echo "${PLAYER_ID} ${WEATHER}" | $SOCAT -d -T2 -t2 - TCP4:${SQUEEZECENTER}:9090 
+#else
+#	info "Squeezebox online. No change."
+#	exit 1
+
+#fi
+exit 0

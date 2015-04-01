@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+#set -x
+#
+#Parameter:
+. /usr/local/etc/config/vob.conf
+#
+#debug "called with $1 and $2."
+IDENT=`basename $0`
+DATE=`date +%Y-%m-%d.%H%M%S`
+SPOOL="/tmp/bck"
+#
+mkdir -p $SPOOL
+# die Daten von dom_backup sind ohnehin in ccu_backup enthalten.
+#/usr/local/addons/cuxd/extra/dom_backup $SPOOL dom_backup_${DATE}.tgz | logger -t $IDENT -p user.info
+/usr/local/addons/cuxd/extra/dom_save | logger -t $IDENT -p user.info
+#
+/usr/local/addons/cuxd/extra/ccu_backup $SPOOL ccu_backup_${DATE}.sbk | logger -t $IDENT -p user.info
+#
+/usr/local/addons/cuxd/extra/export_ftp.sh "braun:neu;ling" 192.168.178.10 /srv/backup/homematix $SPOOL |  logger -t $IDENT -p user.info
+#
+/usr/local/addons/vob/notification $backup_done
+exit 0
+#EOF

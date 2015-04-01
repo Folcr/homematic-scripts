@@ -1,0 +1,42 @@
+#!/bin/sh
+#
+# $Id: get-cc,v 1.3 2002/02/09 11:19:10 braun Exp $
+#
+#set -x
+##########################################
+# Parameters go here
+#RECIPIENT without the domain
+RECIPIENT="xxxxxxxxxxxxxxxxxxxxx"
+# USER without the domain
+USER="xxxxxxxxxxxxxxxxx"
+PASS="yyyyyyyyyyyyyyyyy"
+SERVER="talk.google.com"
+COMPONENT="googlemail.com"
+###########################################
+#
+SCRIPT=`basename $0`
+#
+info()
+{
+   logger -t "${SCRIPT}[$$]" $*
+}
+error()
+{
+   logger -p user.err -t "${SCRIPT}[$$]" "ERROR: $*"
+}
+debug()
+{
+   logger -p user.debug -t "${SCRIPT}[$$]" $*
+}
+
+if [ -n "$1" ]
+then
+	sendxmpp -u $USER -p $PASS -j $SERVER -o $COMPONENT -t  -m $1 $RECIPIENT >/dev/null 2>&1
+	debug "sendxmpp reading from file $1 returned with $?."
+else
+	cat /dev/stdin | sendxmpp -v -u $USER -p $PASS -j $SERVER -o $COMPONENT -t  $RECIPIENT >/dev/null 2>&1
+	debug "sendxmpp reading from stdin returned with $?."
+fi
+exit 0
+#
+#EOF

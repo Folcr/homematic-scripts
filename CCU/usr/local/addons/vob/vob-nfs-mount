@@ -1,0 +1,36 @@
+#!/bin/sh
+# VOB: mount /srv/backup from automatix for permanet logging and backups
+
+case "$1" in
+  ""|start)
+  	mkdir -p /var/nfs
+  	mount -t nfs 192.168.178.10:/srv/backup /var/nfs/ -o rw,nolock
+ 	logger -t homematic -p user.info "VOB: mount NFS from automatix"
+	;;
+
+  stop)
+  	umount /var/nfs
+	logger -t homematic -p user.info "VOB: unmount NFS from automatix"
+	;;
+
+  info)
+        echo "Info: <center><b>VOB NFS mount</b></center><br><br>"
+        echo "Info: mountet NFS von automatix"
+        echo "Name: vob-nfs-mount"
+        echo "Version: 0.1"
+        echo "Operations: uninstall"
+        ;;
+
+  uninstall)
+	#logger -t homematic -p user.info "homematic-script remove settime"
+	#rm /etc/config/rc.d/00settime
+	#rm -rf $APPDIR
+	;;
+
+  *)
+        echo "Usage: settime {start|stop}" >&2
+        exit 1
+        ;;
+esac
+
+exit 0

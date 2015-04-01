@@ -1,0 +1,55 @@
+#!/bin/sh
+#
+# $Id$
+#
+#set -x
+#######start configure section###################################
+KAMERA_IP="192.168.178.xx"
+KAMERA_USER="xxxxxx"
+KAMERA_PASSWORD="yyyy"
+#######end configure section####################################
+KAMERA_URL="http://${KAMERA_IP}/control/rcontrol?action=userclick"
+WGET_OPTIONS="--quiet --no-proxy -O - --user=$KAMERA_USER --password=$KAMERA_PASSWORD"
+#
+SCRIPT=`basename $0`
+#
+info()
+{
+   logger -t "${SCRIPT}[$$]" $*
+}
+error()
+{
+   logger -p user.err -t "${SCRIPT}[$$]" "ERROR: $*"
+}
+debug()
+{
+   logger -p user.debug -t "${SCRIPT}[$$]" $*
+}
+# temporäres Verzeichnis herstellen
+#TEMPDIR=$(mktemp -d /var/tmp/${SCRIPT}.XXXXXX)
+#cd $TEMPDIR
+#
+info "sending user event to camera."
+ANSWER=`wget ${WGET_OPTIONS} ${KAMERA_URL}`
+ret=$?
+# sent also a notification email
+#(VOB) 2009-10-04 deactivated
+#   /usr/local/bin/sentUCmail &
+if [ "$ret" != 0 ]
+then
+	error "wget failed: exited with: $ret. Terminate [1]."
+	exit 1
+else
+	if [ "$ANSWER" = "OK" ]
+	then
+		info "user event successful sent."
+	else
+		error "camera returned $ANSWER."
+		exit 1
+	fi 
+fi
+#
+#rm -fr $TEMPDIR
+exit 0
+#
+#EOF

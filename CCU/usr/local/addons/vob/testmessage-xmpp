@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+#set -x
+#
+#Parameter:
+. /usr/local/etc/config/vob.conf
+#
+#debug "called with $1 and $2."
+#
+/usr/local/addons/vob/notification $testmessage_xmpp &
+exit 0
+#EOF

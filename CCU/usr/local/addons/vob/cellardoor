@@ -1,0 +1,20 @@
+#!/bin/sh
+#
+set -x
+#
+#Parameter:
+. /usr/local/etc/config/vob.conf
+#
+#debug "called with $1 and $2."
+UPDATE=`date -Iseconds`
+TIME=`date +%T`
+#
+if [ "$1" = "true" ]
+then
+	# true: tuere offen
+   /usr/local/etc/config/addons/vob/notification $cellardoor_open &
+else
+  /usr/local/etc/config/addons/vob/notification $cellardoor_closed &   
+fi  
+exit 0
+#EOF

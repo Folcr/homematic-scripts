@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+#set -x
+#
+#Parameter:
+. /usr/local/etc/config/vob.conf
+#
+SOCAT="/usr/local/addons/socat/socat"
+#debug "called with $1 and $2."
+#UPDATE=`date -Iseconds`
+#TIME=`date +%T`
+#
+if [ "$1" = "true" ]
+then
+	echo "Garage offen" | $SOCAT - TCP4:${CAMERA_RC} 
+	/usr/local/addons/vob/notification $garage_open 
+else
+	echo "Garage zu" | $SOCAT - TCP4:${CAMERA_RC} 
+	/usr/local/addons/vob/notification $garage_closed 
+fi
+exit 0
+#EOF

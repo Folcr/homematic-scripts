@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+#set -x
+#
+#Parameter:
+. /usr/local/etc/config/vob.conf
+#debug "called with $1 and $2."
+#
+wget -q -O /dev/null $CAMERA_LED &
+exit 0
+#EOF

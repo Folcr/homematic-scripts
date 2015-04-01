@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+#set -x
+#
+#Parameter:
+. /usr/local/etc/config/vob.conf
+#
+#SOCAT="/usr/local/addons/socat"
+#debug "called with $1 and $2."
+#UPDATE=`date -Iseconds`
+#TIME=`date +%T`
+#
+if [ "$1" = "true" ]
+then
+#	echo "Haustuere offen $TIME" | $SOCAT - TCP4:${CAMERA_RC} &
+	/usr/local/addons/vob/notification $housedoor_open 
+elif [ "$1" = "false" ]
+then
+#	echo "Haustuere zu $TIME" | $SOCAT - TCP4:${CAMERA_RC} &
+	/usr/local/addons/vob/notification $housedoor_closed 
+else
+	/usr/local/addons/vob/notification $housedoor_movement
+fi
+exit 0
+#EOF

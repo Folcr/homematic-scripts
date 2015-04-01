@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+#set -x
+#
+#Parameter:
+. /usr/local/etc/config/vob.conf
+#
+#
+wget -q -O /dev/null  ${NOTIFY}?event=${1}\&go=true &
+exit 0
+#EOF

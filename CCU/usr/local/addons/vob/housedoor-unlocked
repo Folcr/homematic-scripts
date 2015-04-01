@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+#set -x
+#
+#Parameter:
+#
+. /usr/local/etc/config/vob.conf
+#
+#debug "called with $1 and $2."
+#
+#/usr/local/etc/config/addons/vob/camera-rc "Haustuere entriegelt" &
+#/usr/local/etc/config/addons/vob/camera-led &
+/usr/local/addons/vob/notification $housedoor_unlocked 
+exit 0
+#EOF

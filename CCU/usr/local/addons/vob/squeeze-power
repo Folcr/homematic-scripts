@@ -1,0 +1,56 @@
+#!/bin/sh
+# $Id$
+#
+# echo "18:4d:1e:71:f7:84 power ?" | socat -T1 -,ignoreeof   TCP4:automatix:9090 | cut -d " " -f3 
+#
+#set -x
+#
+#Parameter:
+#PLAYER_ID="8c:e5:06:52:2e:a5"  # Softsqueeze
+#PLAYER_ID="00:04:20:06:78:ef"  # Squeezebox3
+#SQUEEZECENTER="192.168.178.10"
+export LD_LIBRARY_PATH="/usr/local/addons/cuxd"
+#-------------------------------
+SCRIPT=`basename $0`
+#
+info()
+{
+   logger -t "${SCRIPT}[$$]" $*
+}
+error()
+{
+   logger -p user.err -t "${SCRIPT}[$$]" "ERROR: $*"
+}
+debug()
+{
+   logger -p user.debug -t "${SCRIPT}[$$]" $*
+}
+#--------------------------------------------
+
+#
+check_online()
+{
+  return=`echo "${PLAYER_ID} power ?" | $SOCAT -T1 -,ignoreeof  TCP4:${SQUEEZECENTER}:9090 | cut -d " " -f3`  
+  if [ $return = 0 ] 
+    then
+	debug "offline"
+        return 0
+    else
+	debug "online"
+        return 1
+    fi   
+}
+#debug "called with $1 and $2."
+#check_online
+if [ "$1" = "true" ]
+then
+/usr/local/addons/cuxd/curl -i -X POST -H "Content-Type: application/json" -d '{"jsonrpc": "2.0", "method": "Player.PlayPause", "params": { "playerid": 0 }, "id": 1}' http://xbian:8080/jsonrpc
+#	ssh -o StrictHostKeyChecking=no -i /usr/local/etc/homematix_rsa_key xbian@xbian 'mpc play'
+#	echo "${PLAYER_ID} power 1" | $SOCAT -d -T2 -t2 - TCP4:${SQUEEZECENTER}:9090 
+#	echo "${PLAYER_ID} play" | $SOCAT -d -T2 -t2 - TCP4:${SQUEEZECENTER}:9090
+else
+/usr/local/addons/cuxd/curl -i -X POST -H "Content-Type: application/json" -d '{"jsonrpc": "2.0", "method": "Player.Stop", "params": { "playerid": 0 }, "id": 1}' http://xbian:8080/jsonrpc
+#	ssh -o StrictHostKeyChecking=no -i /usr/local/etc/homematix_rsa_key xbian@xbian 'mpc stop'
+#	echo "${PLAYER_ID} power 0" | $SOCAT -d -T2 -t2 - TCP4:${SQUEEZECENTER}:9090 
+fi
+exit 0

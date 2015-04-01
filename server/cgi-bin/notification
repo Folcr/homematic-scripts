@@ -1,0 +1,136 @@
+#!/usr/bin/perl -w
+#
+use strict;
+use CGI;
+use CGI::Carp qw(fatalsToBrowser);
+use Sys::Syslog;
+use IO::Socket;
+# Konvention:
+# von 1-19: unwichtige Events
+# von 20-89: Events per XMPP benachrichtigen
+# von 90-99: Events per XMPP und SMS benachrichtigen
+my %events = (  '0' => 'nichts',
+		'1' => 'Haustuere offen',
+		'2' => 'Haustuere zu',
+		'3' => 'Kellertuere offen',
+		'4' => 'Kellertuere zu',
+		'5' => 'Haustuere Bewegung',
+ 		'20' => 'Testmeldung XMPP',
+		'21' => 'Haustuere verriegelt',
+		'22' => 'Haustuere entriegelt',
+		'23' => 'Garage offen',
+		'24' => 'Garage zu',
+                '29' => 'Backup Done',
+		'30' => 'Kellerbelueftung aktiv',
+		'31' => 'Kellerbelueftung aus',
+		'51' => 'Haustuerklingel Wohnung',
+		'52' => 'Kamera nicht erreichbar',
+ 		'90' => 'Testmeldung SMS',
+		'91' => 'Brandmelder ALARM'
+		);
+# die Zahlenwerte des Hashes:
+my @event_keys = keys %events;
+# ordne die Events in der richtigen Reihenfolge an
+my @sort_event_keys = sort {$a<=>$b} @event_keys;
+my $SENTGTALK = '/usr/local/bin/sendgtalk';
+my $SENTSMS = '/usr/local/bin/sendsms';
+my $RETURN; # for the return value of system() call
+# Initialization
+openlog("$0 $$", 'ndelay', 'user');
+my $DTG = localtime(time);
+my $cgi = new CGI;
+# Start of program
+print $cgi->header();
+if ($cgi->param('go')) {
+   print $cgi->start_html(-title=>'Processing');
+   processing($cgi);
+} else {
+   print $cgi->start_html(-title=>'Input Form');
+   formular($cgi);
+}
+print $cgi->end_html();
+closelog();
+exit (0);
+# sub routines
+sub formular{
+    print $cgi->start_form(),
+    	 $cgi->strong('Befehl : '),
+          $cgi->popup_menu({-name =>'event',
+		-values => \@sort_event_keys,
+		-default => '0',
+		-labels => \%events
+		}),
+          $cgi->br,
+          $cgi->submit(-name => 'go', -value =>'absenden'),
+          $cgi->reset(-value =>'verwerfen'),
+          $cgi->end_form();
+}#formular()
+#
+sub processing{
+    print $cgi->h2('Eventverarbeitung');
+    my $selected_event = $cgi->param('event');	
+    print $cgi->strong('Es erfolgt die Aktion fuer Event: ' . $selected_event . $events{$selected_event} . ' um ' . $DTG),
+          $cgi->br;
+    syslog("info", 'preparing action for event: ' .$cgi->param('event'). ' at ' . $DTG);
+    # wenn nichts ausgewählt
+    if ($cgi->param('event') == '0') {
+		print $cgi->strong(q~Sie haben nichts gewaehlt.
+         	Bitte wiederholen Sie Ihre Eingabe~);
+		syslog("warning", 'invalid event: ' .$cgi->param('event'). ' at ' . $DTG);
+ 		return 1;
+		}
+     if ($cgi->param('event') == 1 || $cgi->param('event') == 2 || $cgi->param('event') == 5) {
+		syslog("info", 'house door activity: ' .$cgi->param('event'). ' at ' . $DTG);
+		cameraRC ( $selected_event );
+	}
+     if ($cgi->param('event') == 21 || $cgi->param('event') == 22) {
+                syslog("info", 'house door activity: ' .$cgi->param('event'). ' at ' . $DTG);
+                cameraRC ( $selected_event );
+        }
+
+   
+    # ab 20 XMPP Benachrichigung:
+    if ($cgi->param('event') >= 20) {
+		syslog("info", 'XMPP notification for event: ' .$cgi->param('event'). ' at ' . $DTG);
+		my $xmpp_ret = sendXMPP ( $selected_event );
+		print $cgi->strong('Die Aktion ist beendet mit dem Wert: ' . $xmpp_ret);
+	}
+    # ab 90 noch zusätzlich SMS Benachrichtigung:
+    if ($cgi->param('event') >= 90) {
+		syslog("info", 'SMS notification for event: ' .$cgi->param('event'). ' at ' . $DTG);
+		my $sms_ret = sendSMS ( $selected_event );
+		print $cgi->strong('Die Aktion ist beendet mit dem Wert: ' . $sms_ret);
+	}
+
+}#processing()
+sub sendXMPP{
+	my $event = shift (@_);
+	my $gtalk;	
+	open($gtalk, "| $SENTGTALK");
+	print $gtalk $events{$event}, ' at ', $DTG;
+	my $result = $?;	
+	close $gtalk;
+	return $result	
+}
+#
+sub sendSMS{
+	my $event = shift (@_);
+	my $sms;
+	open($sms, "| $SENTSMS");
+	print $sms $events{$event}, ' at ', $DTG;
+	my $result = $?;	
+	close $sms;
+	return $result	
+}
+sub cameraRC{
+	my $event = shift (@_);	
+	my $sock = new IO::Socket::INET (
+			PeerAddr => '192.168.178.19',
+			PeerPort => '8000',
+			Proto => 'tcp',
+				 );
+	die "Could not create socket: $!\n" unless $sock;
+	print $sock $events{$event} . "\n";
+	close($sock);
+}	
+#EOF

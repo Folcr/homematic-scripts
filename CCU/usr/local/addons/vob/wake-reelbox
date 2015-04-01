@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+#set -x
+#
+#Parameter:
+. /usr/local/etc/config/vob.conf
+#
+WOL="/usr/local/addons/cuxd/extra/ether-wake"
+#debug "called with $1 and $2."
+#
+$WOL $REELBOX_MAC &
+exit 0
+#EOF

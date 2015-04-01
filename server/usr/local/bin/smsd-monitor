@@ -1,0 +1,28 @@
+#!/bin/sh
+#
+# $Id$
+#
+DATE=`date`
+MYNAME=`basename $0`
+TEMP="/tmp/$MYNAME.$$"
+MAILTO="xxxxxxx@googlemail.com"
+#
+gammu-smsd-monitor -n 1 -d 1 >$TEMP
+ret=$?
+echo "exited with $ret." >>$TEMP
+NETWORKSIGNAL=`grep "NetworkSignal:" $TEMP  | sed  '/^NetworkSignal: */!d; s///;q'`
+echo "Networksignal = $NETWORKSIGNAL" >>$TEMP
+#
+echo "executed at $DATE" >>$TEMP
+#
+if [ "$ret" = 0 ]
+then
+	if [ $NETWORKSIGNAL != 0 ]
+	then
+		rm -f $TEMP
+		exit 0
+	fi
+fi
+mail -s  "$MYNAME: problem detected" $MAILTO <$TEMP
+exit $ret
+#EOF

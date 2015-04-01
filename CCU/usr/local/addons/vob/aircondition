@@ -1,0 +1,20 @@
+#!/bin/sh
+#
+#set -x
+#
+#Parameter:
+. /usr/local/etc/config/vob.conf
+#
+SOCAT="/usr/local/addons/socat/socat"
+#debug "called with $1 and $2."
+UPDATE=`date -Iseconds`
+TIME=`date +%T`
+#
+if [ "$1" = "true" ]
+then
+	/usr/local/etc/config/addons/vob/notification $aircondition_active &
+else
+	/usr/local/etc/config/addons/vob/notification $aircondition_off &
+fi
+exit 0
+#EOF

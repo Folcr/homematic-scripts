@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+#set -x
+#
+#Parameter:
+. /usr/local/etc/config/vob.conf
+#
+FEED="/www/addons/feed/homematix.xml"
+#debug "called with $1 and $2."
+TEMP=$1
+HYDR=$2
+UPDATE=`date -Iseconds`
+TIME=`date +%T`
+#
+exec >$FEED.$$
+#
+cat << __HEADER__
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title>Volkis Smarthome Nachrichten</title>
+	<subtitle>Ereignisse von Homematix</subtitle>
+	<link href="http://homematix/" />
+	<link rel="self" href="http://homematix/addons/feed/homematix.xml" />
+__HEADER__
+echo "<updated>${UPDATE}</updated>"
+echo "<author> <name>Volki</name> </author> <id>http://homematix/</id>"
+echo "<entry> <title>${TIME}_${TEMP}Grad_${HYDR}%</title> <published>${UPDATE}</published> <updated>${UPDATE}</updated> </entry> </feed>"
+mv -f $FEED.$$ $FEED
+exit 0
+#EOF

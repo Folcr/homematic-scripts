@@ -1,0 +1,38 @@
+#!/bin/sh
+#
+# $Id$
+#
+# this script is called by /usr/local/bin/sentUC
+#
+#set -x
+#######start configure section###################################
+#RECIPIENT full email address
+RECIPIENT="xxxxxxx@xxxxxx.de"
+#######end configure section####################################
+#
+SCRIPT=`basename $0`
+#
+info()
+{
+   logger -t "${SCRIPT}[$$]" $*
+}
+error()
+{
+   logger -p user.err -t "${SCRIPT}[$$]" "ERROR: $*"
+}
+debug()
+{
+   logger -p user.debug -t "${SCRIPT}[$$]" $*
+}
+# temporäres Verzeichnis herstellen
+#TEMPDIR=$(mktemp -d /var/tmp/${SCRIPT}.XXXXXX)
+#cd $TEMPDIR
+#
+info "sending Haustuerklingelevent via mail."
+DATUM=`date`
+MESSAGE="Haustuere klingelt: $DATUM."
+echo $MESSAGE | mail -s "$MESSAGE" $RECIPIENT
+#rm -fr $TEMPDIR
+exit 0
+#
+#EOF

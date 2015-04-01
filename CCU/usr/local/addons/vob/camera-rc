@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+#set -x
+#
+#Parameter:
+. /usr/local/etc/config/vob.conf
+#
+SOCAT="/usr/local/addons/socat"
+#debug "called with $1 and $2."
+UPDATE=`date -Iseconds`
+TIME=`date +%T`
+#
+echo "$* at $TIME" | $SOCAT - TCP4:${CAMERA_RC} &
+exit 0
+#EOF
