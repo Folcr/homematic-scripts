@@ -1,0 +1,38 @@
+#!/usr/bin/perl 
+#
+# http://search.cpan.org/~msergeant/XML-Parser-2.36/Parser.pm
+# http://search.cpan.org/~kellan/XML-RSS-1.02/lib/RSS.pm
+# http://search.cpan.org/~gaas/libwww-perl-6.04/lib/LWP/Simple.pm
+#
+use strict;
+use warnings;
+use LWP::Simple;
+use XML::Simple;
+use Data::Dumper;
+#use XML::RSS;
+#use DateTime;
+
+my $healthcheckstatus_url = "http://homematix/addons/xmlapi/sysvar.cgi?ise_id=13493&text=true";
+my $healthcheckstatus_out = get($healthcheckstatus_url); 
+my $healthcheckstatus_xml = new XML::Simple;
+my $healthcheckstatus_dom = $healthcheckstatus_xml->XMLin($healthcheckstatus_out);
+print Dumper($healthcheckstatus_dom);
+
+my $healthcheckstatus_value = $healthcheckstatus_dom->{systemVariable}->{value};
+print $healthcheckstatus_value;
+
+my $healthcheck_url = "http://homematix/addons/xmlapi/state.cgi?datapoint_id=2112";
+my $healthcheck_out = get($healthcheck_url); 
+my $healthcheck_xml = new XML::Simple;
+my $healthcheck_dom = $healthcheck_xml->XMLin($healthcheck_out);
+print Dumper($healthcheck_dom);
+
+my $healthcheck_value = $healthcheck_dom->{datapoint}->{value};
+print $healthcheck_value;
+
+exit 0;
+
+
+
+
+

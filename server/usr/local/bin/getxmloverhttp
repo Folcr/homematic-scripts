@@ -1,0 +1,114 @@
+#!/usr/bin/perl 
+#
+# http://search.cpan.org/~msergeant/XML-Parser-2.36/Parser.pm
+# http://search.cpan.org/~kellan/XML-RSS-1.02/lib/RSS.pm
+# http://search.cpan.org/~gaas/libwww-perl-6.04/lib/LWP/Simple.pm
+#
+use strict;
+use warnings;
+use LWP::Simple;
+use XML::Simple;
+#use Data::Dumper;
+use XML::RSS;
+#use DateTime;
+
+my $wetteraussensensor_url = "http://homematix/config/xmlapi/state.cgi?channel_id=10847";
+my $wetteraussensensor = get($wetteraussensensor_url); 
+
+my $xml = new XML::Simple;
+my $was = $xml->XMLin($wetteraussensensor);
+
+#print Dumper($was);  #enable Data::Dumper for this.
+
+my @sensor;
+my $timestamp = $was->{device}->{channel}->{Wetterkombisensor}->{datapoint}->{'BidCos-RF.JEQ0651297:1.TEMPERATURE'}->{timestamp};
+my $update = scalar localtime($timestamp);
+
+$sensor[0][0] = $was->{device}->{channel}->{Wetterkombisensor}->{datapoint}->{'BidCos-RF.JEQ0651297:1.TEMPERATURE'}->{type};
+$sensor[0][1] = $was->{device}->{channel}->{Wetterkombisensor}->{datapoint}->{'BidCos-RF.JEQ0651297:1.TEMPERATURE'}->{value};
+
+$sensor[1][0] = $was->{device}->{channel}->{Wetterkombisensor}->{datapoint}->{'BidCos-RF.JEQ0651297:1.HUMIDITY'}->{type};
+$sensor[1][1] = $was->{device}->{channel}->{Wetterkombisensor}->{datapoint}->{'BidCos-RF.JEQ0651297:1.HUMIDITY'}->{value};
+
+$sensor[2][0] = $was->{device}->{channel}->{Wetterkombisensor}->{datapoint}->{'BidCos-RF.JEQ0651297:1.WIND_SPEED'}->{type};
+$sensor[2][1] = $was->{device}->{channel}->{Wetterkombisensor}->{datapoint}->{'BidCos-RF.JEQ0651297:1.WIND_SPEED'}->{value};
+
+$sensor[3][0] = $was->{device}->{channel}->{Wetterkombisensor}->{datapoint}->{'BidCos-RF.JEQ0651297:1.WIND_DIRECTION'}->{type};
+$sensor[3][1] = $was->{device}->{channel}->{Wetterkombisensor}->{datapoint}->{'BidCos-RF.JEQ0651297:1.WIND_DIRECTION'}->{value};
+
+$sensor[4][0] = $was->{device}->{channel}->{Wetterkombisensor}->{datapoint}->{'BidCos-RF.JEQ0651297:1.WIND_DIRECTION_RANGE'}->{type};
+$sensor[4][1] = $was->{device}->{channel}->{Wetterkombisensor}->{datapoint}->{'BidCos-RF.JEQ0651297:1.WIND_DIRECTION_RANGE'}->{value};
+
+$sensor[5][0] = $was->{device}->{channel}->{Wetterkombisensor}->{datapoint}->{'BidCos-RF.JEQ0651297:1.BRIGHTNESS'}->{type};
+$sensor[5][1] = $was->{device}->{channel}->{Wetterkombisensor}->{datapoint}->{'BidCos-RF.JEQ0651297:1.BRIGHTNESS'}->{value};
+
+$sensor[6][0] = $was->{device}->{channel}->{Wetterkombisensor}->{datapoint}->{'Regen heute'}->{type};
+$sensor[6][1] = $was->{device}->{channel}->{Wetterkombisensor}->{datapoint}->{'Regen heute'}->{value};
+
+$sensor[7][0] = $was->{device}->{channel}->{Wetterkombisensor}->{datapoint}->{'Regen gestern'}->{type};
+$sensor[7][1] = $was->{device}->{channel}->{Wetterkombisensor}->{datapoint}->{'Regen gestern'}->{value};
+
+
+my $time = sprintf("%s", $update);
+#my $time = scalar $timestamp;
+
+my $rss = new XML::RSS (version => '1.0');
+
+$rss->channel(
+   title        => "Wetterkombisensor",
+   link         => "http://automatix/rss/rss.rdf",
+   description  => "news from homematix"
+ );
+
+$rss->add_item(
+   title       => "$time",
+   link        => "http://automatix/rss/rss.rdf",
+   description => "Zuletzt aktualisiert"
+ );
+
+$rss->add_item(
+   title       => sprintf("%.1fC", $sensor[0][1]),
+   link        => "http://automatix/rss/rss.rdf",
+   description => "$sensor[0][0]"
+ );
+
+$rss->add_item(
+   title       => sprintf("%.d%%", $sensor[1][1]),
+   link        => "http://automatix/rss/rss.rdf",
+   description => "$sensor[1][0]"
+ );
+
+$rss->add_item(
+   title       => sprintf("%.1f km/h", $sensor[2][1]),
+   link        => "http://automatix/rss/rss.rdf",
+   description => "$sensor[2][0]"
+ );
+$rss->add_item(
+   title       => sprintf("%.1f Grad", $sensor[3][1]),
+   link        => "http://automatix/rss/rss.rdf",
+   description => "$sensor[3][0]"
+ );
+$rss->add_item(
+   title       => sprintf("%.1f Grad", $sensor[4][1]),
+   link        => "http://automatix/rss/rss.rdf",
+   description => "$sensor[4][0]"
+ );
+$rss->add_item(
+   title       => sprintf("%.d", $sensor[5][1]),
+   link        => "http://automatix/rss/rss.rdf",
+   description => "$sensor[5][0]"
+ );
+$rss->add_item(
+   title       => sprintf("%.1f mm heute", $sensor[6][1]),
+   link        => "http://automatix/rss/rss.rdf",
+   description => "$sensor[6][0]"
+ );
+$rss->add_item(
+   title       => sprintf("%.1f mm gestern", $sensor[7][1]),
+   link        => "http://automatix/rss/rss.rdf",
+   description => "$sensor[7][0]"
+ );
+
+$rss->save("/home/www/automatix/rss/rss.rdf");
+
+
