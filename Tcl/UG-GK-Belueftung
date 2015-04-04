@@ -1,0 +1,59 @@
+!var aussen = dom.GetObject("Wetteraussensensor:1");
+var aussen = dom.GetObject("BidCos-RF.JEQ0016231:1.TEMPERATURE");
+! let the aussentemp be one degree less to start the ventilator
+real aussentemp = (aussen.Value() + 1);
+var ventilator = dom.GetObject("BidCos-RF.JEQ0463994:1.STATE");
+real kellertemp = dom.GetObject("CUxD:CUX1200002:1.TEMPERATURE").Value();
+WriteLine("Keller: " # kellertemp);
+WriteLine("Aussen: " # aussentemp);
+if (aussentemp < kellertemp)
+	{
+                ventilator.State(1);
+	}
+	else
+	{
+                ventilator.State(0);
+	}
+}
+
+---------------------------------------------------------------
+
+real a = dom.GetObject("CUxD.CUX9002001:1.ABS_HUMIDITY").Value();
+real i = dom.GetObject("CUxD.CUX1200002:1.ABS_HUMIDITY").Value();
+var v = dom.GetObject("BidCos-RF.JEQ0463994:1.STATE");
+
+dom.GetObject("CUxD.CUX2801001:1.LOGIT").State(a.Name()#";"#a.Value());
+dom.GetObject("CUxD.CUX2801001:1.LOGIT").State(i.Name()#";"#i.Value());
+
+                                     
+if (a < i)
+	{
+                v.State(1);
+	}
+	else
+	{
+                v.State(0);
+	}
+}
+-----------------------------------------------------------------------
+CUxD.CUX9002001:1.ABS_HUMIDITY
+var o_aussen_abs_hum = dom.GetObject("Wetteraussenwrapper:1.ABS_HUMIDITY");
+var o_keller_abs_hum = dom.GetObject("UG-KG-Temperatur.ABS_HUMIDITY");
+var ventilator = dom.GetObject("BidCos-RF.JEQ0463994:1.STATE");
+                                     
+real aussen_abs_hum = o_aussen_abs_hum.Value();
+real keller_abs_hum = o_keller_abs_hum.Value();
+
+dom.GetObject("CUxD.CUX2801001:1.LOGIT").State(o_aussen_abs_hum.Name()#";"#o_aussen_abs_hum.Value());
+dom.GetObject("CUxD.CUX2801001:1.LOGIT").State(o_keller_abs_hum.Name()#";"#o_keller_abs_hum.Value());
+
+if (aussen_abs_hum < keller_abs_hum)
+	{
+                ventilator.State(1);
+	}
+	else
+	{
+                ventilator.State(0);
+	}
+}
+
