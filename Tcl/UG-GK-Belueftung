@@ -18,17 +18,27 @@ if (aussentemp < kellertemp)
 
 ---------------------------------------------------------------
 
-real a = dom.GetObject("CUxD.CUX9002001:1.ABS_HUMIDITY").Value();
-real i = dom.GetObject("CUxD.CUX1200002:1.ABS_HUMIDITY").Value();
+!Aussen absolute Humidity
+real aah = dom.GetObject("CUxD.CUX9002001:1.ABS_HUMIDITY").Value();
+!UG-GK asolute Humidity
+real iah = dom.GetObject("CUxD.CUX1200002:1.ABS_HUMIDITY").Value();
+!Aussen Temperature
+real at = dom.GetObject("CUxD.CUX9002001:1.TEMPERATURE").Value();
+!UG-GK Temperature
+real it = dom.GetObject("CUxD.CUX1200002:1.TEMPERATURE").Value();
+!Ventilator Zwischenstecker
 var v = dom.GetObject("BidCos-RF.JEQ0463994:1.STATE");
-
-dom.GetObject("CUxD.CUX2801001:1.LOGIT").State(a.Name()#";"#a.Value());
-dom.GetObject("CUxD.CUX2801001:1.LOGIT").State(i.Name()#";"#i.Value());
-
-                                     
-if (a < i)
+                           
+if (at < it)
 	{
-                v.State(1);
+           if ( aah < iah )
+		{
+		     v.State(1);
+		}
+	   else
+		{
+			v.State(0);
+		}
 	}
 	else
 	{
