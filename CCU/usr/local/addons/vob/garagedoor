@@ -12,9 +12,11 @@ SOCAT="/usr/local/addons/socat/socat"
 #
 if [ "$1" = "true" ]
 then
+	info "Garage offen."
 	echo "Garage offen" | $SOCAT - TCP4:${CAMERA_RC} 
 	/usr/local/addons/vob/notification $garage_open 
 else
+	info "Garage zu."
 	echo "Garage zu" | $SOCAT - TCP4:${CAMERA_RC} 
 	/usr/local/addons/vob/notification $garage_closed 
 fi
