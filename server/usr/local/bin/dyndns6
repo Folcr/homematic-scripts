@@ -1,0 +1,44 @@
+#!/bin/sh 
+# $Id$
+#
+#set -x
+#
+AUTOMATIX="2a02:8070:3c3:5800:814e:2ce0:70e2:39f"
+MEINEIP6_URL="http://meineipv6.de/mro.php?format=plaintext"
+#update URL for automatix.mooo.com
+FREEDNS_URL="http://freedns.afraid.org/dynamic/update.php?eE9IZERqdTNwOFMyUmRpSHNuQzhvcmFLSjU6MTEwMTg0NDU="
+#
+SCRIPT=`basename $0`
+EXITCODE="0"
+#-------------------------------
+info()
+{
+   logger -t "${SCRIPT}[$$]" $*
+}
+error()
+{
+   logger -p user.err -t "${SCRIPT}[$$]" "ERROR: $*"
+}
+debug()
+{
+   logger -p user.debug -t "${SCRIPT}[$$]" $*
+}
+#--------------------------------------------
+# MAIN
+#-----
+IPV6=`wget -q6O- $MEINEIP6_URL`
+if [ -z "$IPV6" ]
+then
+	error "emtpy IPv6. Using default."
+	IPV6=$AUTOMATIX
+fi
+info "Updating DynDNS with IP: $IPV6."
+#
+RETURN=`wget -q -O- --read-timeout=0.0 --waitretry=5 --tries=400 "${FREEDNS_URL}\&address=${IPV6}"` 
+if [ -n "$RETURN" ]
+then
+	error "DynDNS update returned: $RETURN."
+fi
+#---------------------------------------------------
+exit $EXITCODE
+# EOF
