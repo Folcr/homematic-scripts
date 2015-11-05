@@ -1,0 +1,61 @@
+#!/bin/sh 
+# $Id$
+#
+#set -x
+#
+# parameter for unifi-ls-clients
+CONTROLLER="automatix"
+PASSWORD="xxxxxxx"
+VERSION="v4"
+SITEID="default"
+#
+#parameter for the person's phones and objects
+# Name, MAC-Adresse Phone, ise_id of CCU.IO
+PHONES="Suzane,68:9c:5e:e4:43:bb,14417 \
+        Melina,c0:ee:fb:32:f9:69,13539 \
+        Volker,88:63:df:6b:33:83,14418"
+#
+CCUIO_API="http://192.168.178.10:8080/api/set"
+#
+SCRIPT=`basename $0`
+EXITCODE="0"
+#-------------------------------
+info()
+{
+   logger -s -t "${SCRIPT}[$$]" $*
+}
+error()
+{
+   logger -s -p user.err -t "${SCRIPT}[$$]" "ERROR: $*"
+}
+debug()
+{
+   logger -p user.debug -t "${SCRIPT}[$$]" $*
+}
+#--------------------------------------------
+# MAIN
+#-----
+# temporäres Verzeichnis herstellen
+TEMPFILE=$(mktemp --tmpdir=/tmp ${SCRIPT}.XXXXXX)
+#
+/usr/local/bin/unifi-ls-clients -c $CONTROLLER -p $PASSWORD -v $VERSION -s $SITEID > $TEMPFILE
+#
+for person in $PHONES
+do
+    name=`echo $person | awk -F, '{ print $1 }'`
+    mac=`echo $person | awk -F, '{ print $2 }'`
+    iseid=`echo $person | awk -F, '{ print $3 }'`
+    hostname=`grep $mac $TEMPFILE | awk '{ print $1 }'`
+    if [ -n "$hostname" ] # if a line with hostname is present
+    then
+        debug "$hostname anwesend."
+        wget -O /dev/null -q "${CCUIO_API}/${iseid}/?value=true" 
+    else
+        debug "$name nicht anwesend."
+        wget  -O /dev/null -q "${CCUIO_API}/${iseid}/?value=false"
+    fi
+done
+#---------------------------------------------------
+rm -fr $TEMPFILE
+exit $EXITCODE
+# EOF
