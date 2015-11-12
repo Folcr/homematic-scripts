@@ -1,0 +1,12 @@
+string curl="/usr/local/addons/cuxd/curl ";
+string url=" http://192.168.178.10/my/cgi-bin/paging";
+string params="-s -o /dev/null -d recipient=VB -d method=xmpp -d go=true ";
+
+
+object o = dom.GetObject("$src$");
+if (o) {
+  if (o.Value() <> o.LastValue()) {
+	string message="-d message=\""#o.Name()#" changed to "#o.Value()#"\"";
+    dom.GetObject("CUxD.CUX2801001:1.CMD_EXEC").State(curl#params#message#url);
+  }
+}
