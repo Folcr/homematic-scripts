@@ -12,9 +12,9 @@ TIME=`date +%T`
 #
 if [ "$1" = "true" ]
 then
-	/usr/local/etc/config/addons/vob/notification $aircondition_active &
+	/usr/local/addons/vob/notification $aircondition_active &
 else
-	/usr/local/etc/config/addons/vob/notification $aircondition_off &
+	/usr/local/addons/vob/notification $aircondition_off &
 fi
 exit 0
 #EOF

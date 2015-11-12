@@ -1,0 +1,34 @@
+#!/bin/sh 
+# $Id$
+#
+#
+#set -x
+#
+URL_SUM_24h="http://192.168.178.10:8080/api/getPlainValue/3862"
+URL_SUM="http://192.168.178.10:8080/api/getPlainValue/3858"
+#
+SCRIPT=`basename $0`
+EXITCODE="0"
+#-------------------------------
+info()
+{
+   logger -t "${SCRIPT}[$$]" $*
+}
+error()
+{
+   logger -p user.err -t "${SCRIPT}[$$]" "ERROR: $*"
+}
+debug()
+{
+   logger -p user.debug -t "${SCRIPT}[$$]" $*
+}
+#--------------------------------------------
+# MAIN
+#-----
+SUM_24h=`wget -q -O - $URL_SUM_24h`
+SUM=`wget -q -O - $URL_SUM`
+echo  "Stromverbrauch letzte 24h: ${SUM_24h}. Summe: ${SUM}." | sendgtalk &
+
+#---------------------------------------------------
+exit $EXITCODE
+# EOF

@@ -7,6 +7,7 @@
 #
 #debug "called with $1 and $2."
 #
+info "Testmessage SMS."
 /usr/local/addons/vob/notification $testmessage_sms &
 exit 0
 #EOF

@@ -1,0 +1,43 @@
+#!/bin/sh 
+# $Id$
+#
+#
+#set -x
+#
+DP="14205"
+URL_GAS_ENERGY_COUNTER="http://192.168.178.10:8080/api/getPlainValue/${DP}"
+#
+SCRIPT=`basename $0`
+EXITCODE="0"
+TODAY=`date '+%Y-%m-%d'`
+YESTERDAY=`date -d "1 day ago" '+%Y-%m-%d'`
+#-------------------------------
+info()
+{
+   logger -t "${SCRIPT}[$$]" $*
+}
+error()
+{
+   logger -p user.err -t "${SCRIPT}[$$]" "ERROR: $*"
+}
+debug()
+{
+   logger -p user.debug -t "${SCRIPT}[$$]" $*
+}
+#--------------------------------------------
+# MAIN
+#-----
+GAS_ENERGY_COUNTER=`wget -q -O - $URL_GAS_ENERGY_COUNTER`
+mkdir -p /tmp/gas
+echo ${GAS_ENERGY_COUNTER} > /tmp/gas/$TODAY
+if [ -r /tmp/gas/$YESTERDAY ]
+then
+	COUNTERYESTERDAY=$(cat "/tmp/gas/$YESTERDAY") 
+	COUNTERDAY=`gawk "BEGIN {OFMT=\"%.2f\"; print $GAS_ENERGY_COUNTER - $COUNTERYESTERDAY;}"`
+fi
+#
+echo  "Zaehlerstand Gas: ${GAS_ENERGY_COUNTER}, Tagesverbrauch: ${COUNTERDAY}." | sendgtalk &
+
+#---------------------------------------------------
+exit $EXITCODE
+# EOF

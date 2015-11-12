@@ -10,6 +10,7 @@
 #
 #/usr/local/etc/config/addons/vob/camera-rc "Haustuere entriegelt" &
 #/usr/local/etc/config/addons/vob/camera-led &
+info "Haustuere entriegelt."
 /usr/local/addons/vob/notification $housedoor_unlocked 
 exit 0
 #EOF

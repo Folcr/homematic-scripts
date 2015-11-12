@@ -1,0 +1,36 @@
+#!/usr/bin/perl
+
+use strict;
+use POSIX qw(strftime);
+use DBI qw(:sql_types);
+#use DBD::Pg qw(:pg_types);
+
+# von jetzt
+my $ts_end = time();
+# bis 24h vorher
+my $ts_start = $ts_end - (60*60*24);
+
+my $date_start = strftime "%Y-%m-%d %H:%M:%S.000", localtime($ts_start);
+my $date_end = strftime "%Y-%m-%d %H:%M:%S.000", localtime($ts_end);
+#print "Anfang: $date_start Ende: $date_end";
+
+my $driver   = "Pg"; 
+my $database = "/home/braun/ccu-historian/data/history";
+my $dsn = "DBI:$driver:dbname=$database;host=127.0.0.1;port=5435";
+my $userid = "sa";
+my $password = "ccu-historian";
+my $dbh = DBI->connect($dsn, $userid, $password, { RaiseError => 1 })
+                      or die $DBI::errstr;
+#print "Opened database successfully\n";
+
+my $stmt = qq(SELECT min(value) as min_temp, max(value) as max_temp, avg(value) as avg_temp from D_BIDCOS_RF_JEQ0651297_1_TEMPERATURE   where (TS >= ? and TS <= ?) );
+my $sth = $dbh->prepare( $stmt , { pg_server_prepare => 0 });
+my $rv = $sth->execute($date_start, $date_end ) or die $DBI::errstr;
+if($rv < 0){
+   print $DBI::errstr;
+}
+while(my @row = $sth->fetchrow_array()) {
+      printf "MIN = %.2f, MAX= %.2f, AVERAGE= %.2f.\n", $row[0], $row[1], $row[2] ;
+}
+#print "Operation done successfully\n";
+$dbh->disconnect();

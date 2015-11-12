@@ -11,9 +11,11 @@ TIME=`date +%T`
 #
 if [ "$1" = "true" ]
 then
+	info "Kellertuere offen."
 	# true: tuere offen
    /usr/local/etc/config/addons/vob/notification $cellardoor_open &
 else
+	info "Kellertuere zu."
   /usr/local/etc/config/addons/vob/notification $cellardoor_closed &   
 fi  
 exit 0

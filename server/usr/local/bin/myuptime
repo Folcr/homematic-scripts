@@ -4,7 +4,9 @@ HOST=`hostname`
 UPTIME=`uptime`
 MYNAME=`basename $0`
 TEMP="/tmp/$MYNAME.$$"
-MAILTO="xxxxx@googlemail.com"
+#MAILTO="braun@automatix"
+#MAILTO="volker.braun@vodafone.de"
+MAILTO="volker.m.braun@googlemail.com"
 #
 #df -h | mail -s "$HOST: $UPTIME" $MAILTO
 #landscape-sysinfo |  mail -s "$HOST: $UPTIME" $MAILTO

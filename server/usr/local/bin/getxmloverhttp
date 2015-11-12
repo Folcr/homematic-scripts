@@ -63,52 +63,28 @@ $rss->channel(
 $rss->add_item(
    title       => "$time",
    link        => "http://automatix/rss/rss.rdf",
-   description => "Zuletzt aktualisiert"
+   description => "Stand"
+ );
+# Temperature, Humidity
+$rss->add_item(
+   title       => sprintf("%.1fC %.d%%", $sensor[0][1], $sensor[1][1]),
+   link        => "http://automatix/rss/rss.rdf",
+   description => "Temp, Hum"
  );
 
+# Wind direction aus Windrichtung mit Range
 $rss->add_item(
-   title       => sprintf("%.1fC", $sensor[0][1]),
+   title       => sprintf("%.1f km/h aus %.1f Grad mit %.1f Grad", $sensor[2][1], $sensor[3][1], $sensor[4][1]),
    link        => "http://automatix/rss/rss.rdf",
-   description => "$sensor[0][0]"
- );
-
-$rss->add_item(
-   title       => sprintf("%.d%%", $sensor[1][1]),
-   link        => "http://automatix/rss/rss.rdf",
-   description => "$sensor[1][0]"
- );
-
-$rss->add_item(
-   title       => sprintf("%.1f km/h", $sensor[2][1]),
-   link        => "http://automatix/rss/rss.rdf",
-   description => "$sensor[2][0]"
+   description => "Wind"
  );
 $rss->add_item(
-   title       => sprintf("%.1f Grad", $sensor[3][1]),
+   title       => sprintf("%.1f mm heute, %.1f mm gestern", $sensor[6][1], $sensor[7][1]),
    link        => "http://automatix/rss/rss.rdf",
-   description => "$sensor[3][0]"
- );
-$rss->add_item(
-   title       => sprintf("%.1f Grad", $sensor[4][1]),
-   link        => "http://automatix/rss/rss.rdf",
-   description => "$sensor[4][0]"
- );
-$rss->add_item(
-   title       => sprintf("%.d", $sensor[5][1]),
-   link        => "http://automatix/rss/rss.rdf",
-   description => "$sensor[5][0]"
- );
-$rss->add_item(
-   title       => sprintf("%.1f mm heute", $sensor[6][1]),
-   link        => "http://automatix/rss/rss.rdf",
-   description => "$sensor[6][0]"
- );
-$rss->add_item(
-   title       => sprintf("%.1f mm gestern", $sensor[7][1]),
-   link        => "http://automatix/rss/rss.rdf",
-   description => "$sensor[7][0]"
+   description => "Niederschlag"
  );
 
 $rss->save("/home/www/automatix/rss/rss.rdf");
+
 
 

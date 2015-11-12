@@ -10,6 +10,8 @@ XBMC_PASS=""
 PLAYLIST="smb://AUTOMATIX/Music/Playlists/SWR3.PLS"  
 export LD_LIBRARY_PATH="/usr/local/addons/cuxd"
 # You should not have to touch anything below
+#Parameter:
+. /usr/local/etc/config/vob.conf
        
 xbmc_req (){
      /usr/local/addons/cuxd/curl -s -i -X POST --header "Content-Type: application/json" -d "$1" http://$XBMC_USER:$XBMC_PASS@$XBMC_HOST:$XBMC_PORT/jsonrpc >/dev/null 
@@ -17,13 +19,13 @@ xbmc_req (){
           
 if [ "$1" = "true" ]
 then
-echo -n "Opening media id $PLAYLIST on $XBMC_HOST ..."
+info "Opening media id $PLAYLIST on $XBMC_HOST ..."
 xbmc_req '{"jsonrpc": "2.0", "method": "Playlist.Clear", "params":{"playlistid":1}, "id": 1}';
 xbmc_req '{"jsonrpc": "2.0", "method": "Playlist.Add", "params":{"playlistid":1, "item" :{ "file" : "'$PLAYLIST'"}}, "id" : 1}';
 xbmc_req '{"jsonrpc": "2.0", "method": "Player.Open", "params":{"item":{"playlistid":1, "position" : 0}}, "id": 1}';
 echo " done."
 else
-echo -n "Stopping video id $ID on $XBMC_HOST ..." 
+info "Stopping video id $ID on $XBMC_HOST ..."
 xbmc_req  '{"jsonrpc": "2.0", "method": "Player.Stop", "params": { "playerid": 0 }, "id": 1}';
 echo " done."
 fi

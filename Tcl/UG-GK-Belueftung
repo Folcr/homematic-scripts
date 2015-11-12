@@ -44,7 +44,6 @@ if (at < it)
 	{
                 v.State(0);
 	}
-}
 -----------------------------------------------------------------------
 CUxD.CUX9002001:1.ABS_HUMIDITY
 var o_aussen_abs_hum = dom.GetObject("Wetteraussenwrapper:1.ABS_HUMIDITY");
