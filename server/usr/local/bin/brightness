@@ -1,0 +1,43 @@
+#!/bin/sh
+#
+# $Id$
+#
+# fetch the brightness measurement value from Mobotix
+# and compute the median from the last 10 values
+# and put in into Homematix system variable
+#set -x
+##########################################
+# Parameters go here
+# .netrc must contain the credentials for this host!
+URL='http://t25mobotix/control/rcontrol?action=gettext&message=$(SEN.LXR)'
+FILE="/var/tmp/lux"
+# Illumination: 17374
+XMLAPI="http://192.168.178.11/config/xmlapi/statechange.cgi?ise_id=17374&new_value="
+###########################################
+#
+SCRIPT=`basename $0`
+#
+info()
+{
+   logger -t "${SCRIPT}[$$]" $*
+}
+error()
+{
+   logger -p user.err -t "${SCRIPT}[$$]" "ERROR: $*"
+}
+debug()
+{
+   logger -p user.debug -t "${SCRIPT}[$$]" $*
+}
+#
+# fetch the measurement and append it with \n to the file
+wget -q -O - "$URL"| xargs -0  printf "%.2f\n" >>$FILE
+# only keep the last 10 measurement lines
+tail -10 $FILE >${FILE}.tmp
+cat ${FILE}.tmp > $FILE
+# compute the median of the last 10 measurements
+MEDIAN=`datamash median 1 <$FILE`
+wget -q -O /dev/null "${XMLAPI}${MEDIAN}"
+exit 0
+#
+#EOF
