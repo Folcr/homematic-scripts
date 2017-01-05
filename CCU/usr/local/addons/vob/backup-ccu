@@ -17,7 +17,7 @@ mkdir -p $SPOOL
 #
 /usr/local/addons/cuxd/extra/ccu_backup $SPOOL ccu_backup_${DATE}.sbk | logger -t $IDENT -p user.info
 #
-/usr/local/addons/cuxd/extra/export_ftp.sh "braun:neu;ling" 192.168.178.10 /srv/backup/homematix $SPOOL |  logger -t $IDENT -p user.info
+/usr/local/addons/cuxd/extra/export_ftp.sh "user:pass" 192.168.178.10 /srv/backup/homematix $SPOOL |  logger -t $IDENT -p user.info
 #
 /usr/local/addons/vob/notification $backup_done
 exit 0
